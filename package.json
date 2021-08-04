@@ -1,0 +1,42 @@
+{
+  "name": "nodejs-coverage-lib",
+  "version": "1.0.7",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.5",
+    "body-parser": "~1.4.3",
+    "debug": "4.1.1",
+    "express": "4.x",
+    "hbs": ">=1.0.2",
+    "nopt": "*",
+    "nyc": "^15.1.0"
+  },
+  "nyc": {
+    "parser-plugins": [
+      "typescript",
+      "jsx",
+      "asyncGenerators",
+      "bigInt",
+      "classProperties",
+      "classPrivateProperties",
+      "dynamicImport",
+      "importMeta",
+      "objectRestSpread",
+      "optionalCatchBinding",
+      "decorators-legacy"
+    ],
+    "all": true,
+    "compact": false,
+    "reporter": [
+      "text",
+      "lcov",
+      "html"
+    ]
+  },
+  "author": "",
+  "license": "ISC"
+}
