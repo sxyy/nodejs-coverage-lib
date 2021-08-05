@@ -53,11 +53,12 @@ function saveCoverage(coverage, coverageFolder, nycFilename) {
 /**
  * 生成报告
  */
-async function  generateReport() {
+async function generateReport() {
     const nycReportOptions = readNycOptions(serverPath);
     // 这个设置很重要 指定了根路径
     nycReportOptions.cwd = serverPath;
     debug('生成全量报告with options %o', nycReportOptions)
+    console.log(nycReportOptions);
     const nyc = new NYC(nycReportOptions)
     await nyc.report()
 
@@ -68,28 +69,28 @@ async function  generateReport() {
 app.get('/download', function (req, res) {
     let coveargeFolder = join(serverPath, NYC_OUT_FOLDER);
     saveCoverage(global.__coverage__, coveargeFolder, join(coveargeFolder, COVERAGE_NAME));
-    generateReport().then(() => {
+    var process = require('child_process');
+    process.exec('nyc report --html', function () {
         var zip = new adm_zip();
         zip.addLocalFolder(join(serverPath, COVERAGE_FOLDER));
-        zip.writeZip(join(serverPath, "coverage.zip"));
-           
-        
-        res.setHeader('Content-type', 'application/octet-stream');
-        res.setHeader('Content-Disposition', 'attachment;filename=coverage.zip');
-        var fileStream = fs.createReadStream(join(serverPath, "coverage.zip"));
-        fileStream.on('data', function (data) {
-            res.write(data, 'binary');
+        zip.writeZip(join(serverPath, "coverage.zip"), () => {
+            res.setHeader('Content-type', 'application/octet-stream');
+            res.setHeader('Content-Disposition', 'attachment;filename=coverage.zip');
+            var fileStream = fs.createReadStream(join(serverPath, "coverage.zip"));
+            fileStream.on('data', function (data) {
+                res.write(data, 'binary');
+            });
+            fileStream.on('end', function () {
+                res.end();
+                fs.unlinkSync(join(serverPath, "coverage.zip"));
+            });
+            fileStream.on('error', (error) => {
+                console.log(error);
+            })
         });
-        fileStream.on('end', function () {
-            fs.unlinkSync(join(serverPath, "coverage.zip"));
-            res.end();
-        });
-        fileStream.on('error', (error) => {
-            console.log(error);
-        })
     });
-    
-    
+
+
 });
 console.log('Starting coverage server at: http://localhost:' + port);
 
