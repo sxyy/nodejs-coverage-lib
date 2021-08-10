@@ -40,16 +40,6 @@ function saveCoverage(coverage, coverageFolder, nycFilename) {
 }
 
 
-function saveCoverage(coverage, coverageFolder, nycFilename) {
-    if (!existsSync(coverageFolder)) {
-        mkdirSync(coverageFolder)
-        console.log('created folder %s for output coverage', coverageFolder)
-    }
-
-    writeFileSync(nycFilename, JSON.stringify(coverage, null, 2))
-}
-
-
 /**
  * 生成报告
  */
@@ -71,23 +61,28 @@ app.get('/download', function (req, res) {
     saveCoverage(global.__coverage__, coveargeFolder, join(coveargeFolder, COVERAGE_NAME));
     var process = require('child_process');
     process.exec('nyc report --html', function () {
-        var zip = new adm_zip();
-        zip.addLocalFolder(join(serverPath, COVERAGE_FOLDER));
-        zip.writeZip(join(serverPath, "coverage.zip"), () => {
-            res.setHeader('Content-type', 'application/octet-stream');
-            res.setHeader('Content-Disposition', 'attachment;filename=coverage.zip');
-            var fileStream = fs.createReadStream(join(serverPath, "coverage.zip"));
-            fileStream.on('data', function (data) {
-                res.write(data, 'binary');
+        if (!existsSync(join(serverPath, COVERAGE_FOLDER))) {
+            res.json({statusCode: 4001, msg: "覆盖率目录未找到, 请检查实际项目的运行环境"})
+        }else {
+            var zip = new adm_zip();
+            zip.addLocalFolder(join(serverPath, COVERAGE_FOLDER));
+            zip.writeZip(join(serverPath, "coverage.zip"), () => {
+                res.setHeader('Content-type', 'application/octet-stream');
+                res.setHeader('Content-Disposition', 'attachment;filename=coverage.zip');
+                var fileStream = fs.createReadStream(join(serverPath, "coverage.zip"));
+                fileStream.on('data', function (data) {
+                    res.write(data, 'binary');
+                });
+                fileStream.on('end', function () {
+                    res.end();
+                    fs.unlinkSync(join(serverPath, "coverage.zip"));
+                });
+                fileStream.on('error', (error) => {
+                    console.log(error);
+                })
             });
-            fileStream.on('end', function () {
-                res.end();
-                fs.unlinkSync(join(serverPath, "coverage.zip"));
-            });
-            fileStream.on('error', (error) => {
-                console.log(error);
-            })
-        });
+        }
+        
     });
 
 
