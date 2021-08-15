@@ -17,6 +17,8 @@ npm i nodejs-coverage-lib --save
 require('nodejs-coverage-lib')
 ```
 
+上述require的引用确保是在其他文件引用的后面，保证该库是最后引用的，这样子coverage的reset才能够有效
+
 2. 添加新的依赖项
 
 ```
