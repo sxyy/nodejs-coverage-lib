@@ -10,7 +10,7 @@ const {
     readNycOptions,
 } = require('./common/task-utils');
 const {
-    deleteFiles
+    deleteFiles,restoreBaseline
 } = require('./common/common-utils');
 const fs = require('fs');
 const adm_zip = require("adm-zip");
@@ -53,6 +53,22 @@ async function generateReport() {
     await nyc.report()
 
 }
+
+//reset coverage to baseline on POST /reset
+app.post('/reset', function (req, res) {
+        restoreBaseline.restoreBaseline();
+        res.json({ ok: true });
+
+        let coveargeFolders = join(serverPath, NYC_OUT_FOLDER);
+
+        deleteCoverage(coveargeFolders);
+    });
+
+app.get('/delete', function (req, res) {
+    let coveargeFolders = join(serverPath, NYC_OUT_FOLDER);
+
+    deleteCoverage(coveargeFolders);
+});
 
 
 //show main page for coverage report for /
