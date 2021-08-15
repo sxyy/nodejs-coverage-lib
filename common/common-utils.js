@@ -1,5 +1,6 @@
 
-var fs = require('fs');
+var fs = require('fs'),
+    baselineCoverage = {};
 
 function combineNycOptions({
   pkgNycOptions,
@@ -27,7 +28,37 @@ function combineNycOptions({
 }
 
 
+//single place to get global coverage object
+function getCoverageObject() {
+  /*jslint nomen: true */
+  global.__coverage__ = global.__coverage__ || {};
+  return global.__coverage__;
+}
 
+
+/**
+ * overwrites the coverage stats for the global coverage object to restore to baseline
+ * @method restoreBaseline
+ */
+ function restoreBaseline() {
+  var cov = getCoverageObject(),
+      fileCoverage,
+      fileBaseline;
+  Object.keys(baselineCoverage).forEach(function (file) {
+      fileBaseline = baselineCoverage[file];
+      if (cov[file]) {
+          fileCoverage = cov[file];
+          fileCoverage.s = clone(fileBaseline.s);
+          fileCoverage.f = clone(fileBaseline.f);
+          fileCoverage.b = clone(fileBaseline.b);
+      }
+  });
+  Object.keys(cov).forEach(function (file) {
+      if (!baselineCoverage[file]) { //throw it out
+          delete cov[file];
+      }
+  });
+}
 
 
 
@@ -59,4 +90,5 @@ module.exports = {
   deleteFiles,
   combineNycOptions,
   defaultNycOptions,
+  restoreBaseline: restoreBaseline,
 }
