@@ -60,7 +60,7 @@ app.get('/download', function (req, res) {
     let coveargeFolder = join(serverPath, NYC_OUT_FOLDER);
     saveCoverage(global.__coverage__, coveargeFolder, join(coveargeFolder, COVERAGE_NAME));
     var process = require('child_process');
-    process.exec('nyc report --html', function () {
+    process.exec('nyc report --reporter=html --reporter=json', function () {
         if (!existsSync(join(serverPath, COVERAGE_FOLDER))) {
             res.json({statusCode: 4001, msg: "覆盖率目录未找到, 请检查实际项目的运行环境"})
         }else {
