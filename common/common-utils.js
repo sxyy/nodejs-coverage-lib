@@ -1,6 +1,7 @@
 
-var fs = require('fs'),
-    baselineCoverage = {};
+var fs = require('fs');
+    // baselineCoverage = {};
+var baselineCoverage = JSON.parse(JSON.stringify(getCoverageObject()));
 
 function combineNycOptions({
   pkgNycOptions,
@@ -26,6 +27,15 @@ function combineNycOptions({
 
   return nycOptions
 }
+
+
+
+//deep-copy object
+function clone(obj) {
+  if (!obj) { return obj; }
+  return JSON.parse(JSON.stringify(obj));
+}
+
 
 
 //single place to get global coverage object
@@ -90,5 +100,5 @@ module.exports = {
   deleteFiles,
   combineNycOptions,
   defaultNycOptions,
-  restoreBaseline: restoreBaseline,
+  restoreBaseline,
 }

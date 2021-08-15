@@ -10,7 +10,7 @@ const {
     readNycOptions,
 } = require('./common/task-utils');
 const {
-    deleteFiles,restoreBaseline
+    deleteFiles, restoreBaseline
 } = require('./common/common-utils');
 const fs = require('fs');
 const adm_zip = require("adm-zip");
@@ -56,18 +56,8 @@ async function generateReport() {
 
 //reset coverage to baseline on POST /reset
 app.post('/reset', function (req, res) {
-        restoreBaseline.restoreBaseline();
-        res.json({ ok: true });
-
-        let coveargeFolders = join(serverPath, NYC_OUT_FOLDER);
-
-        deleteCoverage(coveargeFolders);
-    });
-
-app.get('/delete', function (req, res) {
-    let coveargeFolders = join(serverPath, NYC_OUT_FOLDER);
-
-    deleteCoverage(coveargeFolders);
+    restoreBaseline();
+    res.json({ ok: true });
 });
 
 
@@ -78,8 +68,8 @@ app.get('/download', function (req, res) {
     var process = require('child_process');
     process.exec('nyc report --reporter=html --reporter=json', function () {
         if (!existsSync(join(serverPath, COVERAGE_FOLDER))) {
-            res.json({statusCode: 4001, msg: "覆盖率目录未找到, 请检查实际项目的运行环境"})
-        }else {
+            res.json({ statusCode: 4001, msg: "覆盖率目录未找到, 请检查实际项目的运行环境" })
+        } else {
             var zip = new adm_zip();
             zip.addLocalFolder(join(serverPath, COVERAGE_FOLDER));
             zip.writeZip(join(serverPath, "coverage.zip"), () => {
@@ -98,7 +88,7 @@ app.get('/download', function (req, res) {
                 })
             });
         }
-        
+
     });
 
 
